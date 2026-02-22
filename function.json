@@ -1,0 +1,64 @@
+{
+  "type": "vector.function",
+  "input_schema": {
+    "type": "array",
+    "description": "An array of code snippets to rank by semantic clarity",
+    "minItems": 2,
+    "items": {
+      "type": "string",
+      "description": "A code snippet to evaluate"
+    }
+  },
+  "output_length": {
+    "$starlark": "len(input)"
+  },
+  "input_split": {
+    "$starlark": "[[code] for code in input]"
+  },
+  "input_merge": {
+    "$starlark": "[item[0] for item in input]"
+  },
+  "tasks": [
+    {
+      "type": "vector.completion",
+      "messages": [
+        {
+          "role": "user",
+          "content": [
+            {
+              "type": "text",
+              "text": "I'm reviewing code implementations and I want to find the ones where variable names, function names, and identifiers are the most clear and expressive. Each name should unmistakably communicate what the entity represents and does, making it obvious to readers without needing to trace usage or reverse-engineer meaning.\n\nWhich of the following code implementations best exemplifies clear, semantic naming where every identifier immediately conveys its purpose and intent?"
+            }
+          ]
+        }
+      ],
+      "responses": {
+        "$starlark": "[[{'type': 'text', 'text': snippet}] for snippet in input]"
+      },
+      "output": {
+        "$starlark": "output['scores']"
+      }
+    },
+    {
+      "type": "vector.completion",
+      "messages": [
+        {
+          "role": "user",
+          "content": [
+            {
+              "type": "text",
+              "text": "I'm analyzing code for how well its structure and organization communicate intent. I want to identify implementations where the logical flow mirrors the problem domain, where related operations are grouped meaningfully, where the sequence of steps feels natural and inevitable, and where the overall architecture makes the purpose immediately clear.\n\nWhich of the following code implementations best demonstrates strong structural intent where the organization and design pattern make the purpose obviously apparent?"
+            }
+          ]
+        }
+      ],
+      "responses": {
+        "$starlark": "[[{'type': 'text', 'text': snippet}] for snippet in input]"
+      },
+      "output": {
+        "$starlark": "output['scores']"
+      }
+    }
+  ],
+  "description": "The evaluate-code-clarity function ranks code snippets based on semantic clarity—how effectively they communicate purpose and intent through meaningful naming and logical organization. It identifies implementations that best demonstrate clear, self-documenting code that minimizes cognitive load and reduces maintenance errors."
+}
